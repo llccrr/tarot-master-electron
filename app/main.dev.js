@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign,new-cap */
 /* eslint global-require: 0, flowtype-errors/show-errors: 0 */
 
 /**
@@ -11,8 +12,12 @@
  * @flow
  */
 import { app, BrowserWindow } from 'electron';
+// import Datastore from 'nedb-promise';
+// import Store from '../database/store';
 import MenuBuilder from './menu';
 
+// export const myDb = Store;
+// console.log(myDb);
 let mainWindow = null;
 
 if (process.env.NODE_ENV === 'production') {
@@ -43,7 +48,6 @@ const installExtensions = async () => {
 /**
  * Add event listeners...
  */
-
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
@@ -58,12 +62,13 @@ app.on('ready', async () => {
     process.env.DEBUG_PROD === 'true'
   ) {
     await installExtensions();
+    // load neDB
   }
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728
+    width: 1160,
+    height: 760
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
