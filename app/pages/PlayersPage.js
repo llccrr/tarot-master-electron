@@ -9,7 +9,7 @@ import routes from '../constants/routes';
 import { PlayersList } from '../components/Players/PlayersList';
 
 const PlayersContainer = ({ players }) => {
-  console.log('players', players);
+  console.log('PLAYERS', players);
   return (
     <section>
       <BackButton linkTo={routes.HOME} />
@@ -25,5 +25,5 @@ PlayersContainer.propTypes = {
 
 export const PlayersPage = compose(
   isPage,
-  connectToRedux({ players: 'players' })
+  connectToRedux({ players: 'players.players' })
 )(PlayersContainer);

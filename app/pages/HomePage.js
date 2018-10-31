@@ -4,7 +4,7 @@ import { isPage } from '../hoc/isPage';
 
 class HomeContainer extends Component {
   render() {
-    return <Home />;
+    return <Home {...this.props} />;
   }
 }
 

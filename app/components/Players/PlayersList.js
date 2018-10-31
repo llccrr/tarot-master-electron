@@ -24,9 +24,9 @@ export class PlayersList extends Component {
   renderPlayerRow = player => (
     <TableRow key={player._id}>
       <TableCell component="th" scope="row">
-        {player.lastname}
+        {player.firstname}
       </TableCell>
-      <TableCell>{player.firstname}</TableCell>
+      <TableCell>{player.lastname}</TableCell>
     </TableRow>
   );
 

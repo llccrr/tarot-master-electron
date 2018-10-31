@@ -33,6 +33,7 @@
     "flowtype/use-flow-type": "error",
     "flowtype/valid-syntax": "error",
     "generator-star-spacing": "off",
+    "no-bitwise": "off",
     "import/no-unresolved": "error",
     "import/no-extraneous-dependencies": "off",
     "jsx-a11y/anchor-is-valid": "off",

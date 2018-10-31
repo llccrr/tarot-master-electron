@@ -1,4 +1,4 @@
-import Datastore from 'nedb-promise';
+import Datastore from 'nedb';
 
 class Store {
   DB_NAME = {
@@ -19,16 +19,28 @@ class Store {
   }
 
   // Private methods
-  async insert(dbName, doc) {
-    return this.db[dbName].insert(doc);
-  }
+  insert = async (dbName, doc) =>
+    new Promise((resolve, reject) =>
+      this.db[dbName].insert(doc, (err, newDoc) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(newDoc);
+        }
+      })
+    );
 
   async update(dbName, id, doc) {
     return this.db[dbName].update({ _id: id }, doc, {});
   }
 
   async findAll(dbName) {
-    return this.db[dbName].find({});
+    return new Promise((resolve, reject) =>
+      this.db[dbName].find({}, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      })
+    );
   }
 
   async find(dbName, predicate) {

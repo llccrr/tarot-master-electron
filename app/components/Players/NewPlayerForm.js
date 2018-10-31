@@ -17,9 +17,9 @@ class PureNewPlayerForm extends Component {
     const { firstname, lastname } = this.state;
     const { insertPlayer } = this.props;
     this.setState({ loading: true });
-    await myDb.insertPlayer({ firstname, lastname });
-    insertPlayer({ firstname, lastname });
-    this.setState({ loading: false });
+    const newPlayer = await myDb.insertPlayer({ firstname, lastname });
+    insertPlayer(newPlayer);
+    this.setState({ loading: false, firstname: '', lastname: '' });
   };
 
   setPlayer = field => e => {

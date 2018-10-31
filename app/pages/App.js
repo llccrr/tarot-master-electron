@@ -12,7 +12,9 @@ class PureApp extends Component {
   async componentDidMount() {
     const { setPlayers } = this.props;
     const players = await myDb.findAllPlayers();
-    setPlayers(players);
+    if (players.length > 0) {
+      setPlayers(players);
+    }
   }
 
   handleClose = () => {
