@@ -24,7 +24,7 @@ function setup() {
   };
 }
 
-describe('Game component', () => {
+describe('game component', () => {
   it('should should display count', () => {
     const { p } = setup();
     expect(p.text()).toMatch(/^1$/);

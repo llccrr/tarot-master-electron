@@ -9,7 +9,6 @@ import routes from '../constants/routes';
 import { PlayersList } from '../components/Players/PlayersList';
 
 const PlayersContainer = ({ players }) => {
-  console.log('PLAYERS', players);
   return (
     <section>
       <BackButton linkTo={routes.HOME} />

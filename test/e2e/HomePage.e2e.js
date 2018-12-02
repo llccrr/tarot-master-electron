@@ -5,7 +5,7 @@ import { getPageUrl } from './helpers';
 const getPageTitle = ClientFunction(() => document.title);
 const counterSelector = Selector('[data-tid="counter"]');
 const buttonsSelector = Selector('[data-tclass="btn"]');
-const clickToCounterLink = t => t.click(Selector('a').withExactText('to Game'));
+const clickToCounterLink = t => t.click(Selector('a').withExactText('to game'));
 const incrementButton = buttonsSelector.nth(0);
 const decrementButton = buttonsSelector.nth(1);
 const oddButton = buttonsSelector.nth(2);
@@ -31,7 +31,7 @@ test(
   assertNoConsoleErrors
 );
 
-test('should to Game with click "to Game" link', async t => {
+test('should to game with click "to game" link', async t => {
   await t
     .click('[data-tid=container] > a')
     .expect(getCounterText())
