@@ -10,41 +10,31 @@ import { ScoreHistoric } from '../components/game/ScoreHistoric';
 import { BackButton } from '../components/buttons/BackButton';
 import { NewScorePage } from './NewScorePage';
 
-const mockedPlayers = [
-    { firstname: 'Michel', lastname: 'JeSaisPas', _id: 'D8DYBmWqQIcpN1kx', score: 0 },
-    { firstname: 'Alain', lastname: 'Abry', _id: 'OXUUoxo4cUpaxTJ4', score: 0 },
-    { firstname: "Cham'", lastname: 'B', _id: '49RMcZ7aqxyqbDR7', score: 0 },
-    { firstname: 'Yves', lastname: 'Renaud', _id: '0gYdYsyLlPkuqA0A', score: 0 }
-];
-
 export class Game extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            // players: props.players.map(player => ({ ...player, score: 0 }))
-            players: mockedPlayers,
-            game: [{ players: mockedPlayers, takerId: '' }],
+            game: [{ players: props.players.map(player => ({ ...player, score: 0 })), takerId: '' }],
             showAddScoreModal: false
         };
     }
 
     addScore = scoreInfo => {
-        const { players } = this.state;
-        const newPlayers = players.map(player => {
-            return {
-                ...player,
-                score:
-                    scoreInfo.takerId === player._id
-                        ? player.score + scoreInfo.score
-                        : scoreInfo.deadIds.includes(player._id)
-                            ? player.score
-                            : player.score - parseFloat((scoreInfo.score / 3).toFixed(2), 10)
-            };
-        });
+        const { game } = this.state;
+        const { players } = game[game.length - 1];
+        // TODO: Calculate the new Score according to rules.
+        const newPlayers = players.map(player => ({
+            ...player,
+            score:
+                scoreInfo.takerId === player._id
+                    ? player.score + scoreInfo.score
+                    : scoreInfo.deadIds.includes(player._id)
+                        ? player.score
+                        : player.score - parseFloat((scoreInfo.score / 3).toFixed(2), 10)
+        }));
         const newGame = { players: newPlayers, takerId: scoreInfo.takerId };
         this.setState(state => ({
-            players: newPlayers,
             showAddScoreModal: false,
             game: [newGame, ...state.game]
         }));
@@ -59,13 +49,14 @@ export class Game extends Component {
     };
 
     render() {
-        const { players, game, showAddScoreModal } = this.state;
+        const { game, showAddScoreModal } = this.state;
+        const { players } = this.props;
         return (
             <Fragment>
                 <BackButton linkTo={routes.HOME} />
                 <div style={{ display: 'flex', flex: 1, flexDirection: 'row' }}>
                     <Paper style={{ width: '30%', margin: '0 2.5%' }}>
-                        <ScoreBoard players={players} />
+                        <ScoreBoard players={game[0].players} />
                     </Paper>
                     <Paper style={{ width: '60%', margin: '0 2.5%' }}>
                         <ScoreHistoric game={game} />
@@ -92,6 +83,6 @@ Game.propTypes = {
 };
 
 export const GamePage = compose(
-    isPage,
-    connectToRedux({ players: 'players.currentPlayers' })
+    isPage
+    // connectToRedux({ players: 'players.currentPlayers' })
 )(Game);
