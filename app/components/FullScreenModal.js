@@ -23,8 +23,14 @@ class FullScreenModal extends React.Component {
         handleClose();
     };
 
+    handleSave = () => {
+        const { onSave, handleClose } = this.props;
+        handleClose();
+        onSave();
+    };
+
     render() {
-        const { classes, open, title, children } = this.props;
+        const { classes, open, title, children, render } = this.props;
         return (
             <div>
                 <Dialog fullScreen open={open} onClose={this.handleClose} TransitionComponent={Transition}>
@@ -36,7 +42,7 @@ class FullScreenModal extends React.Component {
                             <Typography variant="h6" color="inherit" className={classes.flex}>
                                 {title}
                             </Typography>
-                            <Button color="inherit" onClick={this.handleClose}>
+                            <Button color="inherit" onClick={this.handleSave}>
                                 Sauvegarder
                             </Button>
                         </Toolbar>

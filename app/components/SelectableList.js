@@ -30,7 +30,6 @@ class PureSelectableList extends React.Component {
             newChecked.splice(currentIndex, 1);
         }
         onChange(newChecked);
-        console.log(newChecked);
         this.setState({
             checked: newChecked
         });

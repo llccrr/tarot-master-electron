@@ -8,7 +8,6 @@ import { isPage } from '../hoc/isPage';
 import { ScoreBoard } from '../components/game/ScoreBoard';
 import { ScoreHistoric } from '../components/game/ScoreHistoric';
 import { BackButton } from '../components/buttons/BackButton';
-import FullScreenModal from '../components/FullScreenModal';
 import { NewScorePage } from './NewScorePage';
 
 const mockedPlayers = [
@@ -25,21 +24,33 @@ export class Game extends Component {
         this.state = {
             // players: props.players.map(player => ({ ...player, score: 0 }))
             players: mockedPlayers,
-            game: [mockedPlayers],
+            game: [{ players: mockedPlayers, takerId: '' }],
             showAddScoreModal: false
         };
     }
 
-    componentDidMount() {
-        // Comment while I use a mock
-        const { history, players } = this.props;
-        // console.log('DID UPDATE', JSON.stringify(players));
-        // if (players.length === 0 || players.length > 7) {
-        //     history.push('/');
-        // }
-    }
+    addScore = scoreInfo => {
+        const { players } = this.state;
+        const newPlayers = players.map(player => {
+            return {
+                ...player,
+                score:
+                    scoreInfo.takerId === player._id
+                        ? player.score + scoreInfo.score
+                        : scoreInfo.deadIds.includes(player._id)
+                            ? player.score
+                            : player.score - parseFloat((scoreInfo.score / 3).toFixed(2), 10)
+            };
+        });
+        const newGame = { players: newPlayers, takerId: scoreInfo.takerId };
+        this.setState(state => ({
+            players: newPlayers,
+            showAddScoreModal: false,
+            game: [newGame, ...state.game]
+        }));
+    };
 
-    addScore = () => {
+    showAddScoreModal = () => {
         this.setState({ showAddScoreModal: true });
     };
 
@@ -60,12 +71,16 @@ export class Game extends Component {
                         <ScoreHistoric game={game} />
                     </Paper>
                 </div>
-                <Button style={{ alignSelf: 'flex-end' }} onClick={this.addScore}>
+                <Button style={{ alignSelf: 'flex-end' }} onClick={this.showAddScoreModal}>
                     Nouvelle partie
                 </Button>
-                <FullScreenModal open={showAddScoreModal} title="Nouveau score" handleClose={this.closeAddScoreModal}>
-                    <NewScorePage players={players} />
-                </FullScreenModal>
+                <NewScorePage
+                    open={showAddScoreModal}
+                    title="Nouveau score"
+                    players={players}
+                    handleAddScore={this.addScore}
+                    handleClose={this.closeAddScoreModal}
+                />
             </Fragment>
         );
     }

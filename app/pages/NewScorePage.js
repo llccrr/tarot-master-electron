@@ -2,22 +2,38 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'redux';
-import { Paper, Divider } from '@material-ui/core';
+import { Divider, Slide, Dialog, AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+import { withStyles } from '@material-ui/core/styles';
 import { isPage } from '../hoc/isPage';
 import { SelectInput } from '../components/forms/SelectInput';
 import { withSnackbar } from '../containers/withSnackbar';
 import { Button } from '../components/buttons/Button';
 import { Bouts } from '../components/forms/Bouts';
 import { TextInput } from '../components/TextInputs/TextInput';
+import { Contracts, contracts } from '../components/forms/Contracts';
+
+function Transition(props) {
+    return <Slide direction="up" {...props} />;
+}
 
 export class Score extends Component {
     state = {
         giverId: '',
+        takerId: '',
+        selectedContract: contracts.petite,
         deadIds: [],
         falseGives: false,
         noContract: false,
         takerPoint: 50,
-        defensePoint: 51
+        defensePoint: 51,
+        selectedBouts: [],
+        score: 50
+    };
+
+    handleClose = () => {
+        const { handleClose } = this.props;
+        handleClose();
     };
 
     handleSelect = key => event => {
@@ -25,7 +41,6 @@ export class Score extends Component {
     };
 
     handleMultipleSelect = (key, max) => event => {
-        console.log('max', max);
         const { showSnackbar } = this.props;
         const { value } = event.target;
         if (value.length > max) {
@@ -35,24 +50,39 @@ export class Score extends Component {
         this.setState({ [key]: value });
     };
 
-    handleCheck = key => event => {
-        this.setState({ [key]: event.target.checked });
-    };
-
     handleNoNext = key => () => {
         this.setState(state => ({ [key]: !state[key] }));
     };
 
     onTakerPointChange = event => {
         const value = event.target.value || 0;
-        // if (value > 91) return;
         this.setState({ takerPoint: value, defensePoint: 91 - value });
     };
 
     onDefensePointChange = event => {
         const value = event.target.value || 0;
-        // if (value > 91) return;
         this.setState({ defensePoint: value, takerPoint: 91 - value });
+    };
+
+    addScore = () => {
+        const { handleAddScore, players, showSnackbar } = this.props;
+        const { deadIds } = this.state;
+        if (deadIds.length + 4 !== players.length) {
+            showSnackbar(`Vérifie ton nombre de mort`);
+            return;
+        }
+        handleAddScore(this.state);
+    };
+
+    onBoutChange = bout => {
+        const { selectedBouts } = this.state;
+        const boutIndex = selectedBouts.findIndex(it => it === bout);
+        if (~boutIndex) {
+            selectedBouts.splice(boutIndex, 1);
+        } else {
+            selectedBouts.push(bout);
+        }
+        this.setState({ selectedBouts });
     };
 
     renderNoNextBtn = (keyState, label, disabled) => (
@@ -78,47 +108,79 @@ export class Score extends Component {
     );
 
     render() {
-        const { players } = this.props;
-        const { giverId, falseGives, noContract, deadIds } = this.state;
+        const { players, classes, open, title } = this.props;
+        const { giverId, falseGives, noContract, deadIds, selectedContract, selectedBouts, takerId } = this.state;
 
         const skip = noContract || falseGives;
         return (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div>
-                    <SelectInput
-                        style={styles.horizontalField}
-                        keyValue="_id"
-                        label="Donneur"
-                        renderLabel={item => item.firstname}
-                        value={giverId}
-                        onChange={this.handleSelect('giverId')}
-                        data={players}
-                    />
-                    {players.length > 3 && (
-                        <SelectInput
-                            style={styles.horizontalField}
-                            multiple
-                            keyValue="_id"
-                            label="Morts"
-                            renderLabel={item => item.firstname}
-                            value={deadIds}
-                            onChange={this.handleMultipleSelect('deadIds', players.length - 4)}
-                            data={players}
-                        />
-                    )}
-                </div>
-                <div style={{ marginTop: '20px' }}>
-                    {this.renderNoNextBtn('falseGives', 'Fausse donne', noContract)}
-                    {this.renderNoNextBtn('noContract', 'Aucun contrat', falseGives)}
-                </div>
-                <Divider style={{ margin: '20px 0' }} variant="middle" />
-                {!skip && (
-                    <div>
-                        {this.renderScoreField('Preneur', 'takerPoint')}
-                        {this.renderScoreField('Défense', 'defensePoint')}
-                        <Bouts />
+            <div>
+                <Dialog fullScreen open={open} onClose={this.handleClose} TransitionComponent={Transition}>
+                    <AppBar className={classes.appBar}>
+                        <Toolbar>
+                            <IconButton color="inherit" onClick={this.handleClose} aria-label="Close">
+                                <CloseIcon />
+                            </IconButton>
+                            <Typography variant="h6" color="inherit" className={classes.flex}>
+                                {title}
+                            </Typography>
+                            <Button color="inherit" onClick={this.addScore}>
+                                Sauvegarder
+                            </Button>
+                        </Toolbar>
+                    </AppBar>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <div>
+                            <SelectInput
+                                className={classes.horizontalField}
+                                keyValue="_id"
+                                label="Donneur"
+                                renderLabel={item => item.firstname}
+                                value={giverId}
+                                onChange={this.handleSelect('giverId')}
+                                data={players}
+                            />
+                            {players.length > 3 && (
+                                <SelectInput
+                                    className={classes.horizontalField}
+                                    multiple
+                                    keyValue="_id"
+                                    label="Morts"
+                                    renderLabel={item => item.firstname}
+                                    value={deadIds}
+                                    onChange={this.handleMultipleSelect('deadIds', players.length - 4)}
+                                    data={players}
+                                />
+                            )}
+                        </div>
+                        <div style={{ marginTop: '20px' }}>
+                            {this.renderNoNextBtn('falseGives', 'Fausse donne', noContract)}
+                            {this.renderNoNextBtn('noContract', 'Aucun contrat', falseGives)}
+                        </div>
+                        <Divider style={{ margin: '20px 0px' }} variant="middle" />
+                        {!skip && (
+                            <div>
+                                <Contracts
+                                    selectedContract={selectedContract}
+                                    onContractChange={selected => this.setState({ selectedContract: selected })}
+                                />
+                                <div style={{ margin: '40px 0px 20px 0px' }}>
+                                    {this.renderScoreField('Preneur', 'takerPoint')}
+                                    {this.renderScoreField('Défense', 'defensePoint')}
+                                    <SelectInput
+                                        className={classes.horizontalField}
+                                        keyValue="_id"
+                                        label="Preneur"
+                                        renderLabel={item => item.firstname}
+                                        value={takerId}
+                                        onChange={this.handleSelect('takerId')}
+                                        data={players}
+                                    />
+                                </div>
+                                <Bouts selectedBouts={selectedBouts} onBoutChange={this.onBoutChange} />
+                            </div>
+                        )}
                     </div>
-                )}
+                </Dialog>
             </div>
         );
     }
@@ -128,13 +190,20 @@ Score.propTypes = {
     players: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
-export const NewScorePage = compose(
-    isPage,
-    withSnackbar
-)(Score);
-
 const styles = {
     horizontalField: {
         marginRight: '20px'
+    },
+    appBar: {
+        position: 'relative'
+    },
+    flex: {
+        flex: 1
     }
 };
+
+export const NewScorePage = compose(
+    withStyles(styles),
+    isPage,
+    withSnackbar
+)(Score);
