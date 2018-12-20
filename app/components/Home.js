@@ -4,16 +4,27 @@ import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { Link } from 'react-router-dom';
 import { connectToRedux } from 'hoc-redux-connector';
-import { ListItemText } from '@material-ui/core';
+import { ListItemText, Paper } from '@material-ui/core';
 import routes from '../constants/routes';
 import { Button } from './buttons/Button';
 import { Dialog } from './global/Modal';
 import { SelectableList } from './SelectableList';
 import { setCurrentPlayers as setCurrentPlayersAction } from '../actions/player.action';
 import { withSnackbar, snackbarPropTypes } from '../containers/withSnackbar';
+import { ScoreHistoric } from './game/ScoreHistoric';
+import { ScoreBoard } from './game/ScoreBoard';
+
+const myDb = require('electron').remote.require('../database/store');
 
 class PureHome extends Component {
-    state = { dialogOpen: false, currentPlayers: [] };
+    state = { dialogOpen: false, currentPlayers: [], lastGame: { scores: [{ players: [] }] } };
+
+    async componentDidMount() {
+        // const test = await myDb.findAll('games');
+        const [lastGame] = await myDb.findLastGame();
+        this.setState({ lastGame });
+        console.log(lastGame);
+    }
 
     handleCloseDialog = () => {
         this.setState({ dialogOpen: false });
@@ -36,7 +47,7 @@ class PureHome extends Component {
     };
 
     render() {
-        const { dialogOpen } = this.state;
+        const { dialogOpen, lastGame } = this.state;
         const { players } = this.props;
 
         return (
@@ -44,7 +55,13 @@ class PureHome extends Component {
                 <h2>REACT PLAYGROUND</h2>
                 <div style={styles.mainRow}>
                     <div style={{ display: 'flex', flex: 1 }}>
-                        <div style={styles.lastGame}>Historique de la dernière partie</div>
+                        <div style={styles.lastGame}>
+                            <h5>Dernière partie: {lastGame._id}</h5>
+                            <ScoreBoard players={lastGame.scores[0].players} />
+                            <Button style={{ marginTop: '5px' }} disabled={true}>
+                                Reprendre la partie
+                            </Button>
+                        </div>
                     </div>
 
                     <div style={styles.buttonsContainer}>
@@ -117,10 +134,10 @@ const styles = {
         paddingTop: '20px'
     },
     lastGame: {
+        flexDirection: 'column',
         display: 'flex',
         width: '400px',
         height: '300px',
-        border: 'solid 1px red',
         justifyContent: 'center',
         alignItems: 'center'
     },

@@ -10,34 +10,50 @@ import { ScoreHistoric } from '../components/game/ScoreHistoric';
 import { BackButton } from '../components/buttons/BackButton';
 import { NewScorePage } from './NewScorePage';
 
+const myDb = require('electron').remote.require('../database/store');
+
 export class Game extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            game: [{ players: props.players.map(player => ({ ...player, score: 0 })), takerId: '' }],
+            game: {
+                scores: [{ players: props.players.map(player => ({ ...player, score: 0 })), takerId: '' }]
+            },
             showAddScoreModal: false
         };
     }
 
-    addScore = scoreInfo => {
-        const { game } = this.state;
-        const { players } = game[game.length - 1];
+    addScore = async scoreInfo => {
+        const { game, id } = this.state;
+        const { players } = game.scores[0];
         // TODO: Calculate the new Score according to rules.
-        const newPlayers = players.map(player => ({
-            ...player,
-            score:
+        const newPlayers = players.map(player => {
+            console.log(player.score, '+', scoreInfo.score);
+            const score =
                 scoreInfo.takerId === player._id
                     ? player.score + scoreInfo.score
                     : scoreInfo.deadIds.includes(player._id)
                         ? player.score
-                        : player.score - parseFloat((scoreInfo.score / 3).toFixed(2), 10)
-        }));
-        const newGame = { players: newPlayers, takerId: scoreInfo.takerId };
-        this.setState(state => ({
+                        : parseFloat(player.score - scoreInfo.score / 3).toFixed(2);
+            return {
+                ...player,
+                score
+            };
+        });
+        const newScore = { players: newPlayers, takerId: scoreInfo.takerId };
+        const newGame = { ...game, scores: [newScore, ...game.scores] };
+        this.setState({
             showAddScoreModal: false,
-            game: [newGame, ...state.game]
-        }));
+            game: newGame
+        });
+        if (id) {
+            console.log('updating');
+            await myDb.updateGame(id, newGame);
+        } else {
+            const createdGame = await myDb.insertGame(newGame);
+            this.setState({ id: createdGame._id });
+        }
     };
 
     showAddScoreModal = () => {
@@ -55,11 +71,11 @@ export class Game extends Component {
             <Fragment>
                 <BackButton linkTo={routes.HOME} />
                 <div style={{ display: 'flex', flex: 1, flexDirection: 'row' }}>
-                    <Paper style={{ width: '30%', margin: '0 2.5%' }}>
-                        <ScoreBoard players={game[0].players} />
+                    <Paper style={{ width: '30%', height: '350px', margin: '0 2.5%' }}>
+                        <ScoreBoard players={game.scores[0].players} />
                     </Paper>
-                    <Paper style={{ width: '60%', margin: '0 2.5%' }}>
-                        <ScoreHistoric game={game} />
+                    <Paper style={{ width: '60%', margin: '0 2.5%', height: '350px', overflow: 'scroll' }}>
+                        <ScoreHistoric scores={game.scores} />
                     </Paper>
                 </div>
                 <Button style={{ alignSelf: 'flex-end' }} onClick={this.showAddScoreModal}>

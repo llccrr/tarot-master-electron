@@ -5,15 +5,14 @@ import { Table } from '../Table';
 
 export class ScoreHistoric extends Component {
     renderTitleCells = () => {
-        const { game } = this.props;
-        return game[0].players.map(player => <TableCell key={player.firstname}>{player.firstname}</TableCell>);
+        const { scores } = this.props;
+        return scores[0].players.map(player => <TableCell key={player.firstname}>{player.firstname}</TableCell>);
     };
 
     renderRowCells = () => {
-        const { game } = this.props;
-
-        if (!(game && game.length > 0)) return [];
-        return game.map((scoreInfo, index) => (
+        const { scores } = this.props;
+        if (!(scores && scores.length > 0)) return [];
+        return scores.map((scoreInfo, index) => (
             <TableRow key={index}>
                 {scoreInfo.players.map(player => (
                     <TableCell
@@ -39,6 +38,6 @@ ScoreHistoric.defaultProps = {
 };
 
 ScoreHistoric.propTypes = {
-    game: PropTypes.arrayOf(PropTypes.object).isRequired,
+    scores: PropTypes.arrayOf(PropTypes.object).isRequired,
     style: PropTypes.object
 };
