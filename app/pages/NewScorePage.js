@@ -31,6 +31,21 @@ export class Score extends Component {
         score: 50
     };
 
+    initState = () => {
+        this.setState({
+            giverId: '',
+            takerId: '',
+            selectedContract: contracts.petite,
+            deadIds: [],
+            falseGives: false,
+            noContract: false,
+            takerPoint: 50,
+            defensePoint: 51,
+            selectedBouts: [],
+            score: 50
+        });
+    };
+
     handleClose = () => {
         const { handleClose } = this.props;
         handleClose();
@@ -65,13 +80,47 @@ export class Score extends Component {
     };
 
     addScore = () => {
-        const { handleAddScore, players, showSnackbar } = this.props;
-        const { deadIds } = this.state;
+        const { handleAddScore, handleFalseGives, players, showSnackbar } = this.props;
+        const {
+            giverId,
+            takerId,
+            selectedContract,
+            deadIds,
+            falseGives,
+            noContract,
+            takerPoint,
+            defensePoint,
+            selectedBouts,
+            score
+        } = this.state;
+
+        if (noContract) {
+            showSnackbar(`Que faire avec le no-contract ? A discuter`);
+            return;
+        }
+        if (!giverId && falseGives) {
+            showSnackbar(`"Donneur" obligatoire pour une fausse donne`);
+            return;
+        }
+        if (giverId && falseGives) {
+            handleFalseGives(giverId);
+            return;
+        }
         if (deadIds.length + 4 !== players.length) {
             showSnackbar(`Vérifie ton nombre de mort`);
             return;
         }
+        console.log('1', takerId, '2', selectedContract, '3', selectedBouts, score);
+        if (!takerId || (!selectedContract && selectedContract !== 0) || selectedBouts.length < 1 || !score) {
+            showSnackbar(`Vérifie les données du preneur (preneur, contract, bouts...)`);
+            return;
+        }
+        if (!defensePoint || !takerPoint) {
+            showSnackbar(`Vérifie les scores des deux camps`);
+            return;
+        }
         handleAddScore(this.state);
+        this.initState();
     };
 
     onBoutChange = bout => {

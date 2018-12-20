@@ -24,6 +24,30 @@ export class Game extends Component {
         };
     }
 
+    addFalseGives = async giverId => {
+        const { game, id } = this.state;
+        const { players } = game.scores[0];
+        const newPlayers = players.map(player => {
+            const score = giverId === player._id ? player.score - 10 : player.score;
+            return {
+                ...player,
+                score
+            };
+        });
+        const newScore = { players: newPlayers, takerId: '', giverId, falseGives: true };
+        const newGame = { ...game, scores: [newScore, ...game.scores] };
+        this.setState({
+            showAddScoreModal: false,
+            game: newGame
+        });
+        if (id) {
+            await myDb.updateGame(id, newGame);
+        } else {
+            const createdGame = await myDb.insertGame(newGame);
+            this.setState({ id: createdGame._id });
+        }
+    };
+
     addScore = async scoreInfo => {
         const { game, id } = this.state;
         const { players } = game.scores[0];
@@ -86,6 +110,7 @@ export class Game extends Component {
                     title="Nouveau score"
                     players={players}
                     handleAddScore={this.addScore}
+                    handleFalseGives={this.addFalseGives}
                     handleClose={this.closeAddScoreModal}
                 />
             </Fragment>

@@ -58,7 +58,7 @@ class PureHome extends Component {
                         <div style={styles.lastGame}>
                             <h5>Dernière partie: {lastGame._id}</h5>
                             <ScoreBoard players={lastGame.scores[0].players} />
-                            <Button style={{ marginTop: '5px' }} disabled={true}>
+                            <Button style={{ marginTop: '5px' }} disabled>
                                 Reprendre la partie
                             </Button>
                         </div>
