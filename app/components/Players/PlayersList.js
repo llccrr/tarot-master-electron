@@ -36,11 +36,7 @@ export class PlayersList extends Component {
     };
 
     render() {
-        return (
-            <div>
-                <Table RowCells={this.renderRowCells()} TitleCells={this.renderTitleCells()} />
-            </div>
-        );
+        return <Table RowCells={this.renderRowCells()} TitleCells={this.renderTitleCells()} />;
     }
 }
 

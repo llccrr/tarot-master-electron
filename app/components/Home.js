@@ -11,7 +11,6 @@ import { Dialog } from './global/Modal';
 import { SelectableList } from './SelectableList';
 import { setCurrentPlayers as setCurrentPlayersAction } from '../actions/player.action';
 import { withSnackbar, snackbarPropTypes } from '../containers/withSnackbar';
-import { ScoreHistoric } from './game/ScoreHistoric';
 import { ScoreBoard } from './game/ScoreBoard';
 
 const myDb = require('electron').remote.require('../database/store');
@@ -23,7 +22,6 @@ class PureHome extends Component {
         // const test = await myDb.findAll('games');
         const [lastGame] = await myDb.findLastGame();
         this.setState({ lastGame });
-        console.log(lastGame);
     }
 
     handleCloseDialog = () => {

@@ -70,12 +70,12 @@ export class Score extends Component {
     };
 
     onTakerPointChange = event => {
-        const value = event.target.value || 0;
+        const value = parseInt(event.target.value, 10);
         this.setState({ takerPoint: value, defensePoint: 91 - value });
     };
 
     onDefensePointChange = event => {
-        const value = event.target.value || 0;
+        const value = parseInt(event.target.value, 10);
         this.setState({ defensePoint: value, takerPoint: 91 - value });
     };
 
@@ -98,8 +98,8 @@ export class Score extends Component {
             showSnackbar(`Que faire avec le no-contract ? A discuter`);
             return;
         }
-        if (!giverId && falseGives) {
-            showSnackbar(`"Donneur" obligatoire pour une fausse donne`);
+        if (!giverId) {
+            showSnackbar(`"Donneur" obligatoire`);
             return;
         }
         if (giverId && falseGives) {
@@ -111,7 +111,7 @@ export class Score extends Component {
             return;
         }
         console.log('1', takerId, '2', selectedContract, '3', selectedBouts, score);
-        if (!takerId || (!selectedContract && selectedContract !== 0) || selectedBouts.length < 1 || !score) {
+        if (!takerId || (!selectedContract && selectedContract !== 0) || selectedBouts.length < 1) {
             showSnackbar(`Vérifie les données du preneur (preneur, contract, bouts...)`);
             return;
         }
@@ -172,12 +172,12 @@ export class Score extends Component {
                             <Typography variant="h6" color="inherit" className={classes.flex}>
                                 {title}
                             </Typography>
-                            <Button color="inherit" onClick={this.addScore}>
+                            <Button color="secondary" onClick={this.addScore}>
                                 Sauvegarder
                             </Button>
                         </Toolbar>
                     </AppBar>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px 25px' }}>
                         <div>
                             <SelectInput
                                 className={classes.horizontalField}
@@ -226,6 +226,7 @@ export class Score extends Component {
                                     />
                                 </div>
                                 <Bouts selectedBouts={selectedBouts} onBoutChange={this.onBoutChange} />
+                                <Divider style={{ margin: '20px 0px' }} variant="middle" />
                             </div>
                         )}
                     </div>

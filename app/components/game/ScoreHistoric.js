@@ -6,7 +6,10 @@ import { Table } from '../Table';
 export class ScoreHistoric extends Component {
     renderTitleCells = () => {
         const { scores } = this.props;
-        return scores[0].players.map(player => <TableCell key={player.firstname}>{player.firstname}</TableCell>);
+        return [
+            scores[0].players.map(player => <TableCell key={player.firstname}>{player.firstname}</TableCell>),
+            <TableCell key="giver">Donneur</TableCell>
+        ];
     };
 
     renderRowCells = () => {
@@ -23,6 +26,9 @@ export class ScoreHistoric extends Component {
                         {player.score}
                     </TableCell>
                 ))}
+                <TableCell key={(scoreInfo.giver && scoreInfo.giver._id) || 'NoGiver'} scope="row">
+                    {scoreInfo.giver && scoreInfo.giver.firstname}
+                </TableCell>
             </TableRow>
         ));
     };
