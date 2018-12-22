@@ -19,6 +19,7 @@ export class Game extends Component {
         const initPlayers = props.players.map(player => ({ ...player, score: 0 }));
         this.state = {
             game: {
+                creationDate: Date.now(),
                 total: {
                     players: initPlayers
                 },

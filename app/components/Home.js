@@ -16,11 +16,13 @@ import { ScoreBoard } from './game/ScoreBoard';
 const myDb = require('electron').remote.require('../database/store');
 
 class PureHome extends Component {
-    state = { dialogOpen: false, currentPlayers: [], lastGame: { scores: [{ players: [] }] } };
+    state = { dialogOpen: false, currentPlayers: [], lastGame: { total: [{ players: [] }] } };
 
     async componentDidMount() {
         // const test = await myDb.findAll('games');
+        // myDb.flushGamesDb();
         const [lastGame] = await myDb.findLastGame();
+        console.log(lastGame);
         this.setState({ lastGame });
     }
 
@@ -53,13 +55,16 @@ class PureHome extends Component {
                 <h2>REACT PLAYGROUND</h2>
                 <div style={styles.mainRow}>
                     <div style={{ display: 'flex', flex: 1 }}>
-                        <div style={styles.lastGame}>
-                            <h5>Dernière partie: {lastGame._id}</h5>
-                            <ScoreBoard players={lastGame.scores[0].players} />
-                            <Button style={{ marginTop: '5px' }} disabled>
-                                Reprendre la partie
-                            </Button>
-                        </div>
+                        {console.log('LAST', lastGame)}
+                        {lastGame && (
+                            <div style={styles.lastGame}>
+                                <h5>Dernière partie: {lastGame._id}</h5>
+                                <ScoreBoard players={lastGame.total.players} />
+                                <Button style={{ marginTop: '5px' }} disabled>
+                                    Reprendre la partie
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
                     <div style={styles.buttonsContainer}>

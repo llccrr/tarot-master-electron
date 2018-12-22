@@ -72,11 +72,23 @@ class Store {
         return this.findAll(this.DB_NAME.Players);
     }
 
+    flushGamesDb() {
+        console.log('passel à  ?');
+        this.db['games'].remove({}, { multi: true }, (err, numRemoved) => {
+            console.log('PAS COMPRIS', numRemoved);
+            this.db['games'].loadDatabase(err => {
+                // don
+                console.log('DONE'), err;
+            });
+        });
+    }
+
     async findLastGame() {
+        console.log('ok');
         return new Promise((resolve, reject) => {
             this.db['games']
                 .find({})
-                .sort({ _id: -1 })
+                .sort({ _creationDate: 1 })
                 .limit(1)
                 .exec((err, docs) => {
                     console.log(err, JSON.stringify(docs));
