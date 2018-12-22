@@ -23,7 +23,7 @@ export class ScoreHistoric extends Component {
                         key={player._id}
                         scope="row"
                     >
-                        {player.score}
+                        {scoreInfo.deadIds.includes(player._id) ? '-' : player.score}
                     </TableCell>
                 ))}
                 <TableCell key={(scoreInfo.giver && scoreInfo.giver._id) || 'NoGiver'} scope="row">

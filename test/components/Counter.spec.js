@@ -41,7 +41,6 @@ describe('game component', () => {
     const counter = (
       <div>
         <Router>
-          <Game counter={1} {...actions} />
         </Router>
       </div>
     );

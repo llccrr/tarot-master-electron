@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connectToRedux } from 'hoc-redux-connector';
@@ -24,7 +24,12 @@ export class Game extends Component {
                     players: initPlayers
                 },
                 scoresHistoric: [
-                    { players: initPlayers, takerId: '', giver: { _id: 'init', firstname: 'Initialisation' } }
+                    {
+                        players: initPlayers,
+                        takerId: '',
+                        deadIds: [],
+                        giver: { _id: 'init', firstname: 'Initialisation' }
+                    }
                 ]
             },
             showAddScoreModal: false
@@ -62,23 +67,34 @@ export class Game extends Component {
 
         const takerScore = calculatePoint(takerPoint, selectedContract, selectedBouts.length);
         const defenseScore = -parseInt(takerScore / 3, 10);
+
+        const calculatePlayerScore = (player, score) => {
+            if (scoreInfo.deadIds.includes(player._id)) {
+                return score;
+            }
+            if (scoreInfo.takerId === player._id) {
+                return score + takerScore;
+            }
+            return score + defenseScore;
+        };
+
         const newPlayers = players.map(player => {
-            const score = scoreInfo.takerId === player._id ? takerScore : defenseScore;
+            const score = calculatePlayerScore(player, 0);
             return {
                 ...player,
                 score
             };
         });
 
-        // return;
         const newScore = {
             players: newPlayers,
             takerId: scoreInfo.takerId,
+            deadIds: scoreInfo.deadIds,
             giver: players.find(player => player._id === scoreInfo.giverId)
         };
-        console.log(newScore.giverId);
+
         const newTotalScore = game.total.players.map(player => {
-            const score = player.score + (scoreInfo.takerId === player._id ? takerScore : defenseScore);
+            const score = calculatePlayerScore(player, player.score);
             return {
                 ...player,
                 score
@@ -165,6 +181,6 @@ Game.propTypes = {
 };
 
 export const GamePage = compose(
-    isPage
-    // connectToRedux({ players: 'players.currentPlayers' })
+    isPage,
+    connectToRedux({ players: 'players.currentPlayers' })
 )(Game);

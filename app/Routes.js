@@ -17,7 +17,7 @@ const mockedPlayers = [
 export default () => (
     <App>
         <Switch>
-            <Route path={routes.GAME} render={props => <GamePage {...props} players={mockedPlayers} />} />
+            <Route path={routes.GAME} render={props => <GamePage {...props} />} />
             <Route path={routes.PLAYERS} component={PlayersPage} />
             <Route path={routes.HOME} component={HomePage} />
         </Switch>

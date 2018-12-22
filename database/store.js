@@ -88,7 +88,7 @@ class Store {
         return new Promise((resolve, reject) => {
             this.db['games']
                 .find({})
-                .sort({ _creationDate: 1 })
+                .sort({ _creationDate: -1 })
                 .limit(1)
                 .exec((err, docs) => {
                     console.log(err, JSON.stringify(docs));

@@ -8,7 +8,7 @@ export class ScoreBoard extends Component {
         const { players } = this.props;
 
         if (!(players && players.length > 0)) return [];
-        return players.sort((a, b) => b.score - a.score).map(player => (
+        return [...players].sort((a, b) => b.score - a.score).map(player => (
             <TableRow key={player._id}>
                 <TableCell scope="row">{player.firstname}</TableCell>
                 <TableCell numeric>{player.score}</TableCell>

@@ -54,8 +54,7 @@ class PureHome extends Component {
             <section style={styles.section}>
                 <h2>REACT PLAYGROUND</h2>
                 <div style={styles.mainRow}>
-                    <div style={{ display: 'flex', flex: 1 }}>
-                        {console.log('LAST', lastGame)}
+                    <div style={{ display: 'flex', flex: 1, padding: '50px 0px' }}>
                         {lastGame && (
                             <div style={styles.lastGame}>
                                 <h5>Dernière partie: {lastGame._id}</h5>
