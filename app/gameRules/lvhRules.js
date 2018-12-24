@@ -1,10 +1,22 @@
+const LVH_CONSTANT = 2;
+
+export const falseGivesScore= -10;
+
 const noBonus = {
-    petit: false,
+    petit: 0,
     poignee: 0,
     chelem: 0
 };
 
-const petitAsLast = petit => (petit ? 20 : 0);
+const petitScore = {
+    0: 0,
+    1: 20,
+    2: 20
+};
+
+const petitAsLastTaker = petit => (petit === 1 ? petitScore[petit] : 0);
+
+const petitAsLastDefense = petit => (petit === 2 ? petitScore[petit] : 0);
 
 const poigneeScore = {
     0: 0,
@@ -36,15 +48,16 @@ const contractScore = {
 };
 
 export const calculatePoint = (takerPoint, contract, bouts, bonus = noBonus) => {
-    console.log(takerPoint, contract, bouts);
     const { petit, poignee, chelem } = bonus;
-    const basicScore =
-        takerPoint * 2 + contractScore[contract] + petitAsLast(petit) + poigneeScore[poignee] + chelemScore[chelem];
-
-    return basicScore;
-    // contrat
-    // nombre de bout
-    // petit au bout ?
-    // Poignée ?
-    // Chelem
+    const basicScore = Math.abs(takerPoint - boutsScore[bouts]);
+    const contractBasicScore = basicScore * LVH_CONSTANT + contractScore[contract];
+    const bonusScore = contractBasicScore + poigneeScore[poignee];
+    const sideBonus = -petitAsLastDefense(petit) + petitAsLastTaker(petit) + chelemScore[chelem];
+    if (takerPoint > boutsScore[bouts]) {
+        // taker wins
+        const defScore = bonusScore + sideBonus;
+        return [defScore * 3, -defScore];
+    }
+    const defScore = bonusScore - sideBonus;
+    return [-defScore * 3, defScore];
 };

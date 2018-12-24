@@ -16,7 +16,7 @@ import { ScoreBoard } from './game/ScoreBoard';
 const myDb = require('electron').remote.require('../database/store');
 
 class PureHome extends Component {
-    state = { dialogOpen: false, currentPlayers: [], lastGame: { total: [{ players: [] }] } };
+    state = { dialogOpen: false, currentPlayers: [], lastGame: undefined };
 
     async componentDidMount() {
         // const test = await myDb.findAll('games');
@@ -52,12 +52,13 @@ class PureHome extends Component {
 
         return (
             <section style={styles.section}>
-                <h2>REACT PLAYGROUND</h2>
+                <h2 style={{ color: '#303f9f' }}>Tarot Master</h2>
                 <div style={styles.mainRow}>
+                    {console.log('last game', lastGame)}
                     <div style={{ display: 'flex', flex: 1, padding: '50px 0px' }}>
                         {lastGame && (
                             <div style={styles.lastGame}>
-                                <h5>Dernière partie: {lastGame._id}</h5>
+                                <h5>Dernière partie {new Date(lastGame.creationDate).toLocaleString()}</h5>
                                 <ScoreBoard players={lastGame.total.players} />
                                 <Button style={{ marginTop: '5px' }} disabled>
                                     Reprendre la partie

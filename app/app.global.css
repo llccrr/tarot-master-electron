@@ -8,9 +8,10 @@
 }
 body {
   position: relative;
-  color: white;
+  /*color: white;*/
   height: 100vh;
-  background-color: #232c39;
+  background-color: #F3F3F3;
+  /*background-color: white;*/
   font-family: Arial, Helvetica, Helvetica Neue, serif;
   overflow-y: hidden;
 }

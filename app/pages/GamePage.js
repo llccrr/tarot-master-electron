@@ -9,7 +9,7 @@ import { ScoreBoard } from '../components/game/ScoreBoard';
 import { ScoreHistoric } from '../components/game/ScoreHistoric';
 import { BackButton } from '../components/buttons/BackButton';
 import { NewScorePage } from './NewScorePage';
-import { calculatePoint } from '../gameRules/lvhRules';
+import { calculatePoint, falseGivesScore } from '../gameRules/lvhRules';
 
 const myDb = require('electron').remote.require('../database/store');
 
@@ -36,37 +36,101 @@ export class Game extends Component {
         };
     }
 
-    addFalseGives = async giverId => {
-        // const { game, id } = this.state;
-        // const { players } = game.total;
-        // const newPlayers = players.map(player => {
-        //     const score = giverId === player._id ? player.score - 10 : player.score;
-        //     return {
-        //         ...player,
-        //         score
-        //     };
-        // });
-        // const newScore = { players: newPlayers, takerId: '', giverId, falseGives: true };
-        // const newGame = { ...game, scores: [newScore, ...game.scores] };
-        // this.setState({
-        //     showAddScoreModal: false,
-        //     game: newGame
-        // });
-        // if (id) {
-        //     await myDb.updateGame(id, newGame);
-        // } else {
-        //     const createdGame = await myDb.insertGame(newGame);
-        //     this.setState({ id: createdGame._id });
-        // }
+    addFalseGives = async (giverId, deadIds) => {
+        const { game, id } = this.state;
+        const { players } = game.total;
+
+        const calculatePlayerScore = (player, score) => {
+            if (giverId === player._id) {
+                return score + falseGivesScore;
+            }
+            return score;
+        };
+
+        const newPlayers = players.map(player => {
+            const score = calculatePlayerScore(player, 0);
+            return {
+                ...player,
+                score
+            };
+        });
+
+        const newScore = {
+            players: newPlayers,
+            takerId: '',
+            falseGives: true,
+            deadIds,
+            giver: players.find(player => player._id === giverId)
+        };
+
+        const newTotalScore = game.total.players.map(player => {
+            const score = calculatePlayerScore(player, player.score);
+            return {
+                ...player,
+                score
+            };
+        });
+        const newGame = {
+            ...game,
+            total: { players: newTotalScore },
+            scoresHistoric: [newScore, ...game.scoresHistoric]
+        };
+        this.setState({
+            showAddScoreModal: false,
+            game: newGame
+        });
+        if (id) {
+            console.log('updating');
+            await myDb.updateGame(id, newGame);
+        } else {
+            const createdGame = await myDb.insertGame(newGame);
+            this.setState({ id: createdGame._id });
+        }
+    };
+
+    addNoContract = async scoreInfo => {
+        const { game, id } = this.state;
+        const { players } = game.total;
+
+        const newPlayers = players.map(player => ({
+            ...player,
+            score: 0
+        }));
+
+        const newScore = {
+            players: newPlayers,
+            takerId: '',
+            deadIds: scoreInfo.deadIds,
+            giver: players.find(player => player._id === scoreInfo.giverId)
+        };
+
+        const newGame = {
+            ...game,
+            scoresHistoric: [newScore, ...game.scoresHistoric]
+        };
+        this.setState({
+            showAddScoreModal: false,
+            game: newGame
+        });
+        if (id) {
+            console.log('updating');
+            await myDb.updateGame(id, newGame);
+        } else {
+            const createdGame = await myDb.insertGame(newGame);
+            this.setState({ id: createdGame._id });
+        }
     };
 
     addScore = async scoreInfo => {
         const { game, id } = this.state;
         const { players } = game.total;
-        const { takerPoint, selectedContract, selectedBouts } = scoreInfo;
-
-        const takerScore = calculatePoint(takerPoint, selectedContract, selectedBouts.length);
-        const defenseScore = -parseInt(takerScore / 3, 10);
+        const { takerPoint, selectedContract, selectedBouts, poignee, chelem } = scoreInfo;
+        const bonus = {
+            petit: scoreInfo.boutAtEndTaker ? 1 : scoreInfo.boutAtEndDefense ? 2 : 0,
+            poignee,
+            chelem
+        };
+        const [takerScore, defenseScore] = calculatePoint(takerPoint, selectedContract, selectedBouts.length, bonus);
 
         const calculatePlayerScore = (player, score) => {
             if (scoreInfo.deadIds.includes(player._id)) {
@@ -152,6 +216,7 @@ export class Game extends Component {
                     players={players}
                     handleAddScore={this.addScore}
                     handleFalseGives={this.addFalseGives}
+                    handleNoContract={this.addNoContract}
                     handleClose={this.closeAddScoreModal}
                 />
             </div>
@@ -164,7 +229,7 @@ const styles = {
     mainContainer: {
         display: 'flex',
         flexDirection: 'column',
-        padding: '0 2.5%'
+        padding: '5% 2.5%'
     },
     addScoreButton: { width: '180px', alignSelf: 'flex-end' },
     scoreBoardPaper: { width: '30%', height: '350px' },

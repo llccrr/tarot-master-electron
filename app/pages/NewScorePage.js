@@ -23,10 +23,14 @@ export class Score extends Component {
         takerId: '',
         selectedContract: contracts.petite,
         deadIds: [],
+        poignee: 0,
         falseGives: false,
         noContract: false,
+        boutAtEndDefense: false,
+        boutAtEndTaker: false,
         takerPoint: 50,
         defensePoint: 51,
+        chelem: 0,
         selectedBouts: [],
         score: 50
     };
@@ -35,6 +39,7 @@ export class Score extends Component {
         this.setState({
             giverId: '',
             takerId: '',
+            poignee: 0,
             selectedContract: contracts.petite,
             deadIds: [],
             falseGives: false,
@@ -52,6 +57,7 @@ export class Score extends Component {
     };
 
     handleSelect = key => event => {
+        console.log(event.target.value);
         this.setState({ [key]: event.target.value });
     };
 
@@ -80,7 +86,7 @@ export class Score extends Component {
     };
 
     addScore = () => {
-        const { handleAddScore, handleFalseGives, players, showSnackbar } = this.props;
+        const { handleAddScore, handleFalseGives, handleNoContract, players, showSnackbar } = this.props;
         const {
             giverId,
             takerId,
@@ -94,24 +100,25 @@ export class Score extends Component {
             score
         } = this.state;
 
-        if (noContract) {
-            showSnackbar(`Que faire avec le no-contract ? A discuter`);
-            return;
-        }
         if (!giverId) {
             showSnackbar(`"Donneur" obligatoire`);
             return;
         }
-        if (giverId && falseGives) {
-            handleFalseGives(giverId);
+        if (noContract) {
+            handleNoContract(this.state);
             return;
         }
         if (deadIds.length + 4 !== players.length) {
             showSnackbar(`Vérifie ton nombre de mort`);
             return;
         }
+        if (falseGives) {
+            handleFalseGives(giverId, deadIds);
+            return;
+        }
+
         console.log('1', takerId, '2', selectedContract, '3', selectedBouts, score);
-        if (!takerId || (!selectedContract && selectedContract !== 0) || selectedBouts.length < 1) {
+        if (!takerId || (!selectedContract && selectedContract !== 0)) {
             showSnackbar(`Vérifie les données du preneur (preneur, contract, bouts...)`);
             return;
         }
@@ -158,7 +165,19 @@ export class Score extends Component {
 
     render() {
         const { players, classes, open, title } = this.props;
-        const { giverId, falseGives, noContract, deadIds, selectedContract, selectedBouts, takerId } = this.state;
+        const {
+            giverId,
+            chelem,
+            falseGives,
+            noContract,
+            deadIds,
+            selectedContract,
+            selectedBouts,
+            takerId,
+            poignee,
+            boutAtEndDefense,
+            boutAtEndTaker
+        } = this.state;
 
         const skip = noContract || falseGives;
         return (
@@ -227,6 +246,41 @@ export class Score extends Component {
                                 </div>
                                 <Bouts selectedBouts={selectedBouts} onBoutChange={this.onBoutChange} />
                                 <Divider style={{ margin: '20px 0px' }} variant="middle" />
+                                <div style={{ marginTop: '20px' }}>
+                                    <p style={{ fontSize: '0.8em' }}>Bouts à la fin</p>
+                                    {this.renderNoNextBtn('boutAtEndDefense', 'Défense', boutAtEndTaker)}
+                                    {this.renderNoNextBtn('boutAtEndTaker', 'Preneur', boutAtEndDefense)}
+                                </div>
+                                <div style={{ marginTop: '15px' }}>
+                                    <SelectInput
+                                        className={classes.horizontalField}
+                                        keyValue="id"
+                                        label="Poignée"
+                                        renderLabel={item => item.label}
+                                        value={poignee}
+                                        onChange={this.handleSelect('poignee')}
+                                        data={[
+                                            { id: 0, label: 'Aucune' },
+                                            { id: 1, label: 'Simple' },
+                                            { id: 2, label: 'Double' },
+                                            { id: 3, label: 'Triple' }
+                                        ]}
+                                    />
+                                    <SelectInput
+                                        className={classes.horizontalField}
+                                        keyValue="id"
+                                        label="Chelem"
+                                        renderLabel={item => item.label}
+                                        value={chelem}
+                                        onChange={this.handleSelect('chelem')}
+                                        data={[
+                                            { id: 0, label: 'Aucun' },
+                                            { id: 1, label: 'Annoncé et réalisé' },
+                                            { id: 2, label: 'Réalisé' },
+                                            { id: 3, label: 'Annoncé et non réalisé' }
+                                        ]}
+                                    />
+                                </div>
                             </div>
                         )}
                     </div>
