@@ -57,7 +57,6 @@ export class Score extends Component {
     };
 
     handleSelect = key => event => {
-        console.log(event.target.value);
         this.setState({ [key]: event.target.value });
     };
 
@@ -117,7 +116,6 @@ export class Score extends Component {
             return;
         }
 
-        console.log('1', takerId, '2', selectedContract, '3', selectedBouts, score);
         if (!takerId || (!selectedContract && selectedContract !== 0)) {
             showSnackbar(`Vérifie les données du preneur (preneur, contract, bouts...)`);
             return;

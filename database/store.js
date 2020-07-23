@@ -73,9 +73,7 @@ class Store {
     }
 
     flushGamesDb() {
-        console.log('passel à  ?');
         this.db['games'].remove({}, { multi: true }, (err, numRemoved) => {
-            console.log('PAS COMPRIS', numRemoved);
             this.db['games'].loadDatabase(err => {
                 // don
                 console.log('DONE'), err;
@@ -84,7 +82,6 @@ class Store {
     }
 
     async findLastGame() {
-        console.log('ok');
         return new Promise((resolve, reject) => {
             this.db['games']
                 .find({})

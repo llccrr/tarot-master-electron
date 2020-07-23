@@ -59,6 +59,10 @@
   "build": {
     "productName": "ElectronReact",
     "appId": "org.develar.ElectronReact",
+    "mac": {
+      "icon": "build/icons/icon.icns",
+      "target":"pkg"
+    },
     "files": [
       "dist/",
       "node_modules/",

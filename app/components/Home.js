@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { Link } from 'react-router-dom';
 import { connectToRedux } from 'hoc-redux-connector';
-import { ListItemText, Paper } from '@material-ui/core';
+import { ListItemText } from '@material-ui/core';
 import routes from '../constants/routes';
 import { Button } from './buttons/Button';
 import { Dialog } from './global/Modal';
@@ -22,7 +22,6 @@ class PureHome extends Component {
         // const test = await myDb.findAll('games');
         // myDb.flushGamesDb();
         const [lastGame] = await myDb.findLastGame();
-        console.log(lastGame);
         this.setState({ lastGame });
     }
 
@@ -46,6 +45,11 @@ class PureHome extends Component {
         }
     };
 
+    retakeGame = () => {
+      const { history } = this.props;
+
+      history.push('/game?retake=true');
+    }
     render() {
         const { dialogOpen, lastGame } = this.state;
         const { players } = this.props;
@@ -54,13 +58,12 @@ class PureHome extends Component {
             <section style={styles.section}>
                 <h2 style={{ color: '#303f9f' }}>Tarot Master</h2>
                 <div style={styles.mainRow}>
-                    {console.log('last game', lastGame)}
                     <div style={{ display: 'flex', flex: 1, padding: '50px 0px' }}>
                         {lastGame && (
                             <div style={styles.lastGame}>
                                 <h5>Dernière partie {new Date(lastGame.creationDate).toLocaleString()}</h5>
                                 <ScoreBoard players={lastGame.total.players} />
-                                <Button style={{ marginTop: '5px' }} disabled>
+                                <Button style={{ marginTop: '5px' }} onClick={this.retakeGame}>
                                     Reprendre la partie
                                 </Button>
                             </div>

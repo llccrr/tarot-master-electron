@@ -17,7 +17,6 @@ export class ScoreHistoric extends Component {
         if (!(scores && scores.length > 0)) return [];
         return scores.map((scoreInfo, index) => (
             <TableRow key={index}>
-                {console.log(scoreInfo)}
                 {scoreInfo.players.map(player => (
                     <TableCell
                         style={{

@@ -36,6 +36,16 @@ export class Game extends Component {
         };
     }
 
+    async componentDidMount() {
+      // Redo properly
+      const isRetake = window.location.href.split('?')[1] === 'retake=true'
+      if(isRetake) {
+        const [lastGame] = await myDb.findLastGame();
+        const { _id, ...game} = lastGame;
+        this.setState({ game: game, id: _id})
+      }
+
+    }
     addFalseGives = async (giverId, deadIds) => {
         const { game, id } = this.state;
         const { players } = game.total;
@@ -80,7 +90,6 @@ export class Game extends Component {
             game: newGame
         });
         if (id) {
-            console.log('updating');
             await myDb.updateGame(id, newGame);
         } else {
             const createdGame = await myDb.insertGame(newGame);
